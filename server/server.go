@@ -50,7 +50,6 @@ func main() {
 }
 
 func startGame() {
-	state.Unlock()
 	state.board.MakeWorld(10)
 	state.Lock()
 	for {
