@@ -58,7 +58,7 @@ func (e *Entity) GetAction(neighbors []*Entity) Action {
 
 // Coordinate keeps track of position
 type Coordinate struct {
-	x, y int
+	X, Y int
 }
 
 // Attributes are things the user sets for their creature

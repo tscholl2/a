@@ -1,5 +1,6 @@
 package utils
 
+// Types are the Wu-Xing for determining attacking
 var Types = [...]string{"wood", "fire", "earth", "metal", "water"}
 
 // CompareTypes returns whether i *generates* j

@@ -10,8 +10,21 @@ const (
 )
 
 func (e *Entity) chooseActionType(neighbors []*Entity) string {
-	types := []string{attack, reproduce, sleep, move}
-	return types[rand.Intn(len(types))]
+	total := 0
+	total += e.Stats.Priority.Attacker
+	total += e.Stats.Priority.Reproduction
+	total += e.Stats.Priority.Sleepy
+	total += e.Stats.Priority.Speed
+	actionChoice := rand.Intn(total)
+	if actionChoice < e.Stats.Priority.Attacker {
+		return attack
+	} else if actionChoice < e.Stats.Priority.Reproduction {
+		return reproduce
+	} else if actionChoice < e.Stats.Priority.Sleepy {
+		return sleep
+	} else {
+		return move
+	}
 }
 
 func (e *Entity) attackAction(targets []*Entity) []*Entity {
@@ -30,6 +43,10 @@ func (e *Entity) sleepAction() []*Entity {
 }
 
 func (e *Entity) moveAction() []*Entity {
+	// Check if Beacon exists
+	if e.BeaconPosition.X != -1 && e.BeaconPosition.Y != -1 {
+		// Calculate unit vector
+	}
 	// do stuff here
 	return []*Entity{e}
 }
