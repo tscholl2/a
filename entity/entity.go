@@ -1,5 +1,7 @@
 package entity
 
+import "log"
+
 // Entity is a players of the game
 type Entity struct {
 	Stats          Attributes // List of stats, set by user-created entities
@@ -26,6 +28,8 @@ type Action struct {
 func (e *Entity) GetAction(neighbors []*Entity) Action {
 	t := e.chooseActionType(neighbors)
 	e.History = append(e.History, t)
+	e.Age++
+	log.Printf("%s-%s is performing %s", e.Stats.SpeciesName, e.UUID, t)
 	switch t {
 	case "attack":
 		return Action{

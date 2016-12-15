@@ -6,9 +6,8 @@ import (
 	"math/rand"
 	"sort"
 
-	"time"
-
 	"github.com/tscholl2/a/entity"
+	"github.com/tscholl2/a/utils"
 )
 
 type Game struct {
@@ -18,15 +17,36 @@ type Game struct {
 	Stats    GameStats
 }
 
-func (g *Game) Run() {
-	ticker := time.NewTicker(time.Second).C
-	select {
-	case <-ticker:
-		g.turn()
+func (g *Game) MakeWorld(worldSize int) {
+	g.Size = worldSize
+	g.Turn = 0
+	g.Entities = make(map[string]*entity.Entity)
+	for i := 0; i < 10; i++ {
+		newPlant := randomPlant()
+		g.Entities[newPlant.UUID] = newPlant
 	}
 }
 
-func (g *Game) turn() {
+func randomPlant() *entity.Entity {
+	var stats entity.Attributes
+	stats.Type = utils.Types[rand.Intn(5)]
+	stats.Defense = rand.Intn(20)
+	stats.Strength = rand.Intn(20)
+	stats.Endurance = rand.Intn(20)
+	stats.Fortitude = rand.Intn(20)
+	stats.Initiative = rand.Intn(20)
+	stats.SpeciesName = fmt.Sprintf("%s plant %d", stats.Type, rand.Intn(10000))
+	stats.Priority.Attacker = rand.Intn(20)
+	stats.Priority.Reproduction = rand.Intn(20)
+	stats.Priority.Sleepy = rand.Intn(20)
+	stats.Priority.Sleepy = rand.Intn(20)
+	var e *entity.Entity
+	e.Initialize(stats)
+	e.IsPlant = true
+	return e
+}
+
+func (g *Game) Step() {
 	g.Turn++
 	entities := g.getOrder()
 	for _, e := range entities {

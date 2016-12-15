@@ -2,6 +2,7 @@ package entity
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
 
@@ -203,6 +204,7 @@ func (e *Entity) attackAction(targets []*Entity) []*Entity {
 	e.SP = e.SP - 10
 	e.HP = e.HP + hpTotal
 	target.HP = target.HP - hpTotal
+	log.Printf("%s-%s attacked %s-%s for %d damage", e.Stats.SpeciesName, e.UUID, target.Stats.SpeciesName, target.UUID, hpTotal)
 
 	return []*Entity{e, target}
 }
@@ -224,6 +226,8 @@ func (e *Entity) reproduceAction() []*Entity {
 	// create new entity
 	newEntity := new(Entity)
 	newEntity.Initialize(newStats)
+	newEntity.Generation = e.Generation + 1
+	log.Printf("%s-%s created offspring: %s-%s", e.Stats.SpeciesName, e.UUID, newEntity.Stats.SpeciesName, newEntity.UUID)
 
 	e.HP = e.HP / 2
 	e.SP = e.SP / 2
@@ -235,6 +239,7 @@ func (e *Entity) sleepAction() []*Entity {
 	if e.SP > e.MaxSP {
 		e.SP = e.MaxSP
 	}
+	log.Printf("%s-%s sleeping", e.Stats.SpeciesName, e.UUID)
 	return []*Entity{e}
 }
 
@@ -249,11 +254,12 @@ func (e *Entity) moveAction() []*Entity {
 
 		e.Position.X = e.Position.X + vNorm.X
 		e.Position.Y = e.Position.Y + vNorm.Y
+
 	} else {
 		// Move randomly
 		e.Position.X = e.Position.X + rand.Intn(3) - 1
 		e.Position.Y = e.Position.Y + rand.Intn(3) - 1
 	}
-	// do stuff here
+	log.Printf("%s-%s moved to %d,%d", e.Stats.SpeciesName, e.UUID, e.Position.X, e.Position.Y)
 	return []*Entity{e}
 }

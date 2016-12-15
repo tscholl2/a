@@ -5,12 +5,20 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tscholl2/a/entity"
+	"github.com/tscholl2/a/game"
 )
 
 var Port string
+
+var state = struct {
+	sync.RWMutex
+	board *game.Game
+}{board: new(game.Game)}
 
 func main() {
 	flag.StringVar(&Port, "port", "8072", "port to run this server on (default: 8072)")
@@ -35,5 +43,20 @@ func main() {
 	})
 
 	fmt.Println("Running on 127.0.0.1:" + Port)
+
+	fmt.Println("Starting game...")
+	go startGame()
 	r.Run(":" + Port)
+}
+
+func startGame() {
+	state.Unlock()
+	state.board.MakeWorld(10)
+	state.Lock()
+	for {
+		state.Unlock()
+		state.board.Step()
+		state.Lock()
+		time.Sleep(1)
+	}
 }
