@@ -16,7 +16,7 @@ func randomPlant() entity.Entity {
 	stats.Endurance = rand.Intn(20)
 	stats.Fortitude = rand.Intn(20)
 	stats.Initiative = rand.Intn(20)
-	stats.SpeciesName = fmt.Sprintf("Plant%d", rand.Intn(10000))
+	stats.SpeciesName = fmt.Sprintf("%s plant %d", stats.Type, rand.Intn(10000))
 	stats.Priority.Attacker = rand.Intn(20)
 	stats.Priority.Reproduction = rand.Intn(20)
 	stats.Priority.Sleepy = rand.Intn(20)

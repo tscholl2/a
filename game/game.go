@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"sort"
 
 	"time"
 
@@ -41,9 +42,39 @@ func (g *Game) turn() {
 }
 
 func (g *Game) getOrder() []*entity.Entity {
-	// TODO
-	return nil
+	entities := make([]*entity.Entity, len(g.Entities))
+	entityInitative := make(map[string]int)
+	for entityUUID := range g.Entities {
+		entityInitative[entityUUID] = g.Entities[entityUUID].Stats.Initiative
+	}
+	pairs := rankByInitiative(entityInitative)
+	for i := range pairs {
+		entities[i] = g.Entities[pairs[i].Key]
+	}
+	return entities
 }
+
+func rankByInitiative(entityInitative map[string]int) PairList {
+	pl := make(PairList, len(entityInitative))
+	i := 0
+	for k, v := range entityInitative {
+		pl[i] = Pair{k, v}
+		i++
+	}
+	sort.Sort(sort.Reverse(pl))
+	return pl
+}
+
+type Pair struct {
+	Key   string
+	Value int
+}
+
+type PairList []Pair
+
+func (p PairList) Len() int           { return len(p) }
+func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
+func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 func (g *Game) findAllInSquare(self *entity.Entity, x, y int) (things []*entity.Entity) {
 	for _, e := range g.Entities {
