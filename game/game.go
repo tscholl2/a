@@ -40,7 +40,7 @@ func randomPlant() *entity.Entity {
 	stats.Priority.Reproduction = rand.Intn(20)
 	stats.Priority.Sleepy = rand.Intn(20)
 	stats.Priority.Sleepy = rand.Intn(20)
-	var e *entity.Entity
+	e := new(entity.Entity)
 	e.Initialize(stats)
 	e.IsPlant = true
 	return e

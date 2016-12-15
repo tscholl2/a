@@ -36,11 +36,11 @@ func (e *Entity) Initialize(stats Attributes) {
 		stats.Defense = 0
 	}
 	total := stats.Defense + stats.Endurance + stats.Fortitude + stats.Initiative + stats.Strength + 5
-	stats.Defense = int(20 * float64(stats.Defense+1) / float64(total))
-	stats.Endurance = int(20 * float64(stats.Endurance+1) / float64(total))
-	stats.Fortitude = int(20 * float64(stats.Fortitude+1) / float64(total))
-	stats.Initiative = int(20 * float64(stats.Initiative+1) / float64(total))
-	stats.Strength = int(20 * float64(stats.Strength+1) / float64(total))
+	stats.Defense = 1 + int(20*float64(stats.Defense+1)/float64(total))
+	stats.Endurance = 1 + int(20*float64(stats.Endurance+1)/float64(total))
+	stats.Fortitude = 1 + int(20*float64(stats.Fortitude+1)/float64(total))
+	stats.Initiative = 1 + int(20*float64(stats.Initiative+1)/float64(total))
+	stats.Strength = 1 + int(20*float64(stats.Strength+1)/float64(total))
 
 	// Normalize priorities
 	if stats.Priority.Attacker < 0 {
@@ -56,17 +56,17 @@ func (e *Entity) Initialize(stats Attributes) {
 		stats.Priority.Speed = 0
 	}
 	total = stats.Priority.Attacker + stats.Priority.Reproduction + stats.Priority.Sleepy + stats.Priority.Speed + 4
-	stats.Priority.Attacker = int(20 * float64(stats.Priority.Attacker+1) / float64(total))
-	stats.Priority.Reproduction = int(20 * float64(stats.Priority.Reproduction+1) / float64(total))
-	stats.Priority.Sleepy = int(20 * float64(stats.Priority.Sleepy+1) / float64(total))
-	stats.Priority.Speed = int(20 * float64(stats.Priority.Speed+1) / float64(total))
+	stats.Priority.Attacker = 1 + int(20*float64(stats.Priority.Attacker+1)/float64(total))
+	stats.Priority.Reproduction = 1 + int(20*float64(stats.Priority.Reproduction+1)/float64(total))
+	stats.Priority.Sleepy = 1 + int(20*float64(stats.Priority.Sleepy+1)/float64(total))
+	stats.Priority.Speed = 1 + int(20*float64(stats.Priority.Speed+1)/float64(total))
 
 	e.Stats = stats
 	e.UUID = fmt.Sprintf("%d", rand.Int63())
 	e.Age = 0
 	e.Generation = 0
-	e.Position.X = rand.Intn(10000)
-	e.Position.Y = rand.Intn(10000)
+	e.Position.X = rand.Int()
+	e.Position.Y = rand.Int()
 	e.MaxHP = rand.Intn(e.Stats.Fortitude) + rand.Intn(e.Stats.Fortitude)
 	e.HP = e.MaxHP
 	e.MaxSP = rand.Intn(e.Stats.Endurance) + rand.Intn(e.Stats.Endurance)

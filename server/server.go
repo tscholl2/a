@@ -56,6 +56,6 @@ func startGame() {
 		state.Unlock()
 		state.board.Step()
 		state.Lock()
-		time.Sleep(1)
+		time.Sleep(10)
 	}
 }
