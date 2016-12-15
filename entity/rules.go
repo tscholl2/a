@@ -1,6 +1,9 @@
 package entity
 
-import "math/rand"
+import (
+	"math"
+	"math/rand"
+)
 
 const (
 	attack    = "attack"
@@ -45,7 +48,19 @@ func (e *Entity) sleepAction() []*Entity {
 func (e *Entity) moveAction() []*Entity {
 	// Check if Beacon exists
 	if e.BeaconPosition.X != -1 && e.BeaconPosition.Y != -1 {
+		// Move toward beacon
+
 		// Calculate unit vector
+		v := Coordinate{e.BeaconPosition.X - e.Position.X, e.BeaconPosition.Y - e.Position.Y}
+		vMag := math.Sqrt(float64(v.X*v.X + v.Y*v.Y))
+		vNorm := Coordinate{int(float64(v.X) / vMag), int(float64(v.Y) / vMag)}
+
+		e.Position.X = e.Position.X + vNorm.X
+		e.Position.Y = e.Position.Y + vNorm.Y
+	} else {
+		// Move randomly
+		e.Position.X = e.Position.X + rand.Intn(3) - 1
+		e.Position.Y = e.Position.Y + rand.Intn(3) - 1
 	}
 	// do stuff here
 	return []*Entity{e}
