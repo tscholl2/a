@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 
 	"time"
@@ -46,7 +47,7 @@ func (g *Game) getOrder() []*entity.Entity {
 
 func (g *Game) findAllInSquare(self *entity.Entity, x, y int) (things []*entity.Entity) {
 	for _, e := range g.Entities {
-		if e.Position.X == x && e.Position.Y == y && e.UUID != self.UUID {
+		if int(math.Mod(float64(e.Position.X), float64(g.Size))) == x && int(math.Mod(float64(e.Position.Y), float64(g.Size))) == y && e.UUID != self.UUID {
 			things = append(things, e)
 		}
 	}

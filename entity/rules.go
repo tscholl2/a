@@ -19,6 +19,21 @@ const (
 // Initialize creates a new Entity based on the stats supplied
 func (e *Entity) Initialize(stats Attributes) {
 	// Normalize stats
+	if stats.Defense < 0 {
+		stats.Defense = 0
+	}
+	if stats.Endurance < 0 {
+		stats.Defense = 0
+	}
+	if stats.Fortitude < 0 {
+		stats.Defense = 0
+	}
+	if stats.Initiative < 0 {
+		stats.Defense = 0
+	}
+	if stats.Strength < 0 {
+		stats.Defense = 0
+	}
 	total := stats.Defense + stats.Endurance + stats.Fortitude + stats.Initiative + stats.Strength + 5
 	stats.Defense = int(20 * float64(stats.Defense+1) / float64(total))
 	stats.Endurance = int(20 * float64(stats.Endurance+1) / float64(total))
@@ -26,7 +41,19 @@ func (e *Entity) Initialize(stats Attributes) {
 	stats.Initiative = int(20 * float64(stats.Initiative+1) / float64(total))
 	stats.Strength = int(20 * float64(stats.Strength+1) / float64(total))
 
-	// Normalize personliaty
+	// Normalize priorities
+	if stats.Priority.Attacker < 0 {
+		stats.Priority.Attacker = 0
+	}
+	if stats.Priority.Reproduction < 0 {
+		stats.Priority.Reproduction = 0
+	}
+	if stats.Priority.Sleepy < 0 {
+		stats.Priority.Sleepy = 0
+	}
+	if stats.Priority.Speed < 0 {
+		stats.Priority.Speed = 0
+	}
 	total = stats.Priority.Attacker + stats.Priority.Reproduction + stats.Priority.Sleepy + stats.Priority.Speed + 4
 	stats.Priority.Attacker = int(20 * float64(stats.Priority.Attacker+1) / float64(total))
 	stats.Priority.Reproduction = int(20 * float64(stats.Priority.Reproduction+1) / float64(total))
