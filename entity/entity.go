@@ -67,17 +67,17 @@ type Coordinate struct {
 
 // Attributes are things the user sets for their creature
 type Attributes struct {
-	SpeciesName string      // user determines Species name
-	Type        string      // wood, fire, earth, metal, water
-	Initiative  int         // affects ordering in game
-	Strength    int         // amount hitpoints absorbed, x2 for advantage
-	Defense     int         // amount to decrease hitpoints absorbed, x2 for advantage
-	Endurance   int         // decreases stamina used for moving
-	Fortitude   int         // amount of stamina gained for sleeping
-	Priority    ActionStats // Priority determines what actions will be chosen
-	Vegetarian  bool        // when attacking, chooses plants as target
-	Aggressive  bool        // when attacking, chooses lower defense as target
-	Scavenger   bool        // when attacking, chooses lower HP as target
+	SpeciesName string      `json:"species_name"` // user determines Species name
+	Type        string      `json:"type"`         // wood, fire, earth, metal, water
+	Initiative  int         `json:"initiative"`   // affects ordering in game
+	Strength    int         `json:"strength"`     // amount hitpoints absorbed, x2 for advantage
+	Defense     int         `json:"defense"`      // amount to decrease hitpoints absorbed, x2 for advantage
+	Endurance   int         `json:"endurance"`    // decreases stamina used for moving
+	Fortitude   int         `json:"fortitude"`    // amount of stamina gained for sleeping
+	Priority    ActionStats `json:"priority"`     // Priority determines what actions will be chosen
+	Vegetarian  bool        `json:"vegetarian"`   // when attacking, chooses plants as target
+	Aggressive  bool        `json:"aggressive"`   // when attacking, chooses lower defense as target
+	Scavenger   bool        `json:"scavenger"`    // when attacking, chooses lower HP as target
 }
 
 // ActionStats are the priorities for the action.
@@ -85,9 +85,9 @@ type Attributes struct {
 // These priorities are normalized when determing which action to undertake
 // to determine the priority with probabilities.
 type ActionStats struct {
-	Attacker int // increases probability for attack action
+	Attacker int `json:"attacker"` // increases probability for attack action
 	// the decision on which Entity to attack is chosen by other attributes
-	Speed        int // increases probability for move action
-	Reproduction int // increases probability for reproducing
-	Sleepy       int // increases probability for sleep action
+	Speed        int `json:"speed"`        // increases probability for move action
+	Reproduction int `json:"reproduction"` // increases probability for reproducing
+	Sleepy       int `json:"sleepy"`       // increases probability for sleep action
 }
