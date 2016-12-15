@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+
+	"github.com/tscholl2/a/utils"
 )
 
 const (
@@ -11,6 +13,7 @@ const (
 	reproduce = "reproduce"
 	sleep     = "sleep"
 	move      = "move"
+	donothing = "donothing"
 )
 
 // Initialize creates a new Entity based on the stats supplied
@@ -27,32 +30,53 @@ func (e *Entity) Initialize(stats Attributes) {
 	e.SP = e.MaxSP
 }
 
+func (e Entity) canReproduce() bool {
+	return 0.75*float64(e.SP) > float64(e.MaxSP) && 0.75*float64(e.HP) > float64(e.MaxHP)
+}
+
+func (e Entity) canAttack() bool {
+	return e.SP > 0
+}
+
+func (e Entity) canMove() bool {
+	return e.SP > 0
+}
+
 func (e *Entity) chooseActionType(neighbors []*Entity) string {
-	// Determine if possible to attack
+	// Plants do nothing
+	if e.IsPlant {
+		return donothing
+	}
+
 	attackPossibility := 0
-	for _, neighbor := range neighbors {
-		if (neighbor.IsPlant && e.Stats.Vegetarian) || !e.Stats.Vegetarian {
-			attackPossibility = e.Stats.Priority.Attacker
-			break
+	reproducePossibility := 0
+	movePossibility := 0
+	sleepPossibility := e.Stats.Priority.Sleepy // You can always sleep
+
+	// Determine if possible to attack
+	if e.canAttack() {
+		for _, neighbor := range neighbors {
+			if (neighbor.IsPlant && e.Stats.Vegetarian) || !e.Stats.Vegetarian {
+				attackPossibility = e.Stats.Priority.Attacker
+				break
+			}
 		}
 	}
 
 	// Determine if its possible to reproduce
-	reproducePossibility := 0
 	if e.canReproduce() {
 		reproducePossibility = e.Stats.Priority.Reproduction
 	}
 
-	// You can always sleep and move
-	sleepPossibility := e.Stats.Priority.Sleepy
-	movePossibility := e.Stats.Priority.Speed
-
-	// Beacons trump all
-	if e.BeaconPosition.X != -1 && e.BeaconPosition.Y != -1 {
-		attackPossibility = 0
-		reproducePossibility = 0
-		sleepPossibility = 0
-		movePossibility = 1
+	if e.canMove() {
+		movePossibility = e.Stats.Priority.Speed
+		// Beacons trump all
+		if e.BeaconPosition.X != -1 && e.BeaconPosition.Y != -1 {
+			attackPossibility = 0
+			reproducePossibility = 0
+			sleepPossibility = 0
+			movePossibility = 1
+		}
 	}
 
 	actionChoice := rand.Intn(attackPossibility + reproducePossibility + sleepPossibility + movePossibility)
@@ -67,9 +91,78 @@ func (e *Entity) chooseActionType(neighbors []*Entity) string {
 	}
 }
 
+func (e *Entity) hasPlantAdvantageAgainst(e2 *Entity) bool {
+	_, generate := utils.CompareType(e2.Stats.Type, e.Stats.Type)
+	return generate
+}
+
+func (e *Entity) hasAttackAdvantageAgainst(e2 *Entity) bool {
+	overcome, _ := utils.CompareType(e.Stats.Type, e2.Stats.Type)
+	return overcome
+}
+
+func (e *Entity) hasAttackDisadvantageAgainst(e2 *Entity) bool {
+	overcome, _ := utils.CompareType(e2.Stats.Type, e.Stats.Type)
+	return overcome
+}
+
 func (e *Entity) attackAction(targets []*Entity) []*Entity {
-	// do stuff here
-	return []*Entity{e, targets[0]}
+	// Choose target
+	lowestDefense := 0
+	lowestHP := 0
+	targetID := 0
+	for i, target := range targets {
+		if e.Stats.Vegetarian && target.IsPlant {
+			if e.hasPlantAdvantageAgainst(target) {
+				targetID = i
+				break
+			}
+			if target.Stats.Defense < lowestDefense && e.Stats.Aggressive && !e.hasAttackDisadvantageAgainst(target) {
+				lowestDefense = target.Stats.Defense
+				targetID = i
+			}
+			if target.HP < lowestHP && e.Stats.Scavenger && !e.hasAttackDisadvantageAgainst(target) {
+				lowestHP = target.HP
+				targetID = i
+			}
+		} else {
+			if e.hasAttackAdvantageAgainst(target) {
+				targetID = i
+				break
+			}
+			if target.Stats.Defense < lowestDefense && e.Stats.Aggressive && !e.hasAttackDisadvantageAgainst(target) {
+				lowestDefense = target.Stats.Defense
+				targetID = i
+			}
+			if target.HP < lowestHP && e.Stats.Scavenger && !e.hasAttackDisadvantageAgainst(target) {
+				lowestHP = target.HP
+				targetID = i
+			}
+		}
+	}
+
+	// Attack target
+	target := targets[targetID]
+	hpAttack := rand.Intn(e.Stats.Strength)
+	if e.hasAttackAdvantageAgainst(target) {
+		hpAttack += rand.Intn(e.Stats.Strength)
+	}
+	hpDefense := rand.Intn(target.Stats.Defense)
+	if e.hasAttackDisadvantageAgainst(target) {
+		hpDefense += rand.Intn(target.Stats.Defense)
+	}
+	hpTotal := hpAttack - hpDefense
+	if hpTotal > target.HP {
+		hpTotal = target.HP
+	}
+	if hpTotal < 0 {
+		hpTotal = 0
+	}
+	e.SP = e.SP - 10
+	e.HP = e.HP + hpTotal
+	target.HP = target.HP - hpTotal
+
+	return []*Entity{e, target}
 }
 
 func (e *Entity) reproduceAction() []*Entity {
@@ -96,14 +189,16 @@ func (e *Entity) reproduceAction() []*Entity {
 }
 
 func (e *Entity) sleepAction() []*Entity {
-	// do stuff here
+	e.SP += rand.Intn(e.Stats.Fortitude)
+	if e.SP > e.MaxSP {
+		e.SP = e.MaxSP
+	}
 	return []*Entity{e}
 }
 
 func (e *Entity) moveAction() []*Entity {
-	// Check if Beacon exists
 	if e.BeaconPosition.X != -1 && e.BeaconPosition.Y != -1 {
-		// Move toward beacon
+		// If Beacon exists, move toward beacon
 
 		// Calculate unit vector
 		v := Coordinate{e.BeaconPosition.X - e.Position.X, e.BeaconPosition.Y - e.Position.Y}
@@ -119,8 +214,4 @@ func (e *Entity) moveAction() []*Entity {
 	}
 	// do stuff here
 	return []*Entity{e}
-}
-
-func (e Entity) canReproduce() bool {
-	return 0.75*float64(e.SP) > float64(e.MaxSP) && 0.75*float64(e.HP) > float64(e.MaxHP)
 }
