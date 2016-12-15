@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 )
@@ -11,6 +12,20 @@ const (
 	sleep     = "sleep"
 	move      = "move"
 )
+
+// Initialize creates a new Entity based on the stats supplied
+func (e *Entity) Initialize(stats Attributes) {
+	e.Stats = stats
+	e.UUID = fmt.Sprintf("%d", rand.Int63())
+	e.Age = 0
+	e.Generation = 0
+	e.Position.X = rand.Intn(10000)
+	e.Position.Y = rand.Intn(10000)
+	e.MaxHP = rand.Intn(e.Stats.Fortitude) + rand.Intn(e.Stats.Fortitude)
+	e.HP = e.MaxHP
+	e.MaxSP = rand.Intn(e.Stats.Endurance) + rand.Intn(e.Stats.Endurance)
+	e.SP = e.MaxSP
+}
 
 func (e *Entity) chooseActionType(neighbors []*Entity) string {
 	// Determine if possible to attack
@@ -58,8 +73,26 @@ func (e *Entity) attackAction(targets []*Entity) []*Entity {
 }
 
 func (e *Entity) reproduceAction() []*Entity {
-	// do stuff here
-	return []*Entity{e, new(Entity)}
+	newStats := e.Stats
+	for _, action := range e.History {
+		switch action {
+		case attack:
+			newStats.Priority.Attacker++
+		case reproduce:
+			newStats.Priority.Reproduction++
+		case sleep:
+			newStats.Priority.Sleepy++
+		case move:
+			newStats.Priority.Speed++
+		}
+	}
+	// create new entity
+	newEntity := new(Entity)
+	newEntity.Initialize(newStats)
+
+	e.HP = e.HP / 2
+	e.SP = e.SP / 2
+	return []*Entity{e, newEntity}
 }
 
 func (e *Entity) sleepAction() []*Entity {

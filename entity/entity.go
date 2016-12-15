@@ -25,6 +25,7 @@ type Action struct {
 // GetAction takes a list of targets and returns an action this entity wants to do.
 func (e *Entity) GetAction(neighbors []*Entity) Action {
 	t := e.chooseActionType(neighbors)
+	e.History = append(e.History, t)
 	switch t {
 	case "attack":
 		return Action{
