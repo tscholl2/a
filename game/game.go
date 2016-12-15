@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 
+	"time"
+
 	"github.com/tscholl2/a/entity"
 )
 
@@ -12,6 +14,14 @@ type Game struct {
 	Turn     int                       // current turn number
 	Size     int                       // maximum position in X or Y
 	Stats    GameStats
+}
+
+func (g *Game) Run() {
+	ticker := time.NewTicker(time.Second).C
+	select {
+	case <-ticker:
+		g.turn()
+	}
 }
 
 func (g *Game) turn() {
