@@ -47,7 +47,7 @@ func (g *Game) getOrder() []*entity.Entity {
 
 func (g *Game) findAllInSquare(self *entity.Entity, x, y int) (things []*entity.Entity) {
 	for _, e := range g.Entities {
-		if int(math.Mod(float64(e.Position.X), float64(g.Size))) == x && int(math.Mod(float64(e.Position.Y), float64(g.Size))) == y && e.UUID != self.UUID {
+		if int(math.Mod(float64(e.Position.X), float64(g.Size))) == int(math.Mod(float64(x), float64(g.Size))) && int(math.Mod(float64(e.Position.Y), float64(g.Size))) == int(math.Mod(float64(y), float64(g.Size))) && e.UUID != self.UUID {
 			things = append(things, e)
 		}
 	}
