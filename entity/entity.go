@@ -52,7 +52,10 @@ func (e *Entity) GetAction(neighbors []*Entity) Action {
 				return e.reproduceAction()
 			}}
 	default:
-		panic("unknown type")
+		return Action{
+			Description: "",
+			Perform:     func() (updates []*Entity) { return nil },
+		}
 	}
 
 }
