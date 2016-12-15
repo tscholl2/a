@@ -11,6 +11,7 @@ const (
 	reproduce = "reproduce"
 	sleep     = "sleep"
 	move      = "move"
+	donothing = "donothing"
 )
 
 // Initialize creates a new Entity based on the stats supplied
@@ -28,6 +29,11 @@ func (e *Entity) Initialize(stats Attributes) {
 }
 
 func (e *Entity) chooseActionType(neighbors []*Entity) string {
+	// Plants do nothing
+	if e.IsPlant {
+		return donothing
+	}
+
 	// Determine if possible to attack
 	attackPossibility := 0
 	for _, neighbor := range neighbors {
@@ -96,7 +102,10 @@ func (e *Entity) reproduceAction() []*Entity {
 }
 
 func (e *Entity) sleepAction() []*Entity {
-	// do stuff here
+	e.SP += rand.Intn(e.Stats.Fortitude)
+	if e.SP > e.MaxSP {
+		e.SP = e.MaxSP
+	}
 	return []*Entity{e}
 }
 
