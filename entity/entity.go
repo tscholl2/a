@@ -1,6 +1,6 @@
 package entity
 
-// Entities are the players of the game
+// Entity is a players of the game
 type Entity struct {
 	Stats          Attributes // List of stats, set by user-created entities
 	UUID           string     // UUID is unique for all entities
@@ -14,6 +14,22 @@ type Entity struct {
 	MaxSP          int        // maximum Stamina Points
 	SP             int        // current Stamina Points
 	History        []string   // History of actions
+}
+
+// Action is something to be preformed by the game
+type Action struct {
+	Description string
+	Perform     func() []*Entity
+}
+
+// GetAction takes a list of targets and returns an action this entity wants to do.
+func (e *Entity) GetAction([]*Entity) Action {
+	return Action{
+		Description: "sleep",
+		Perform: func() (updates []*Entity) {
+			return append(updates, e)
+		},
+	}
 }
 
 // Coordinate keeps track of position
