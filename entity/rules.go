@@ -18,6 +18,21 @@ const (
 
 // Initialize creates a new Entity based on the stats supplied
 func (e *Entity) Initialize(stats Attributes) {
+	// Normalize stats
+	total := stats.Defense + stats.Endurance + stats.Fortitude + stats.Initiative + stats.Strength + 5
+	stats.Defense = int(20 * float64(stats.Defense+1) / float64(total))
+	stats.Endurance = int(20 * float64(stats.Endurance+1) / float64(total))
+	stats.Fortitude = int(20 * float64(stats.Fortitude+1) / float64(total))
+	stats.Initiative = int(20 * float64(stats.Initiative+1) / float64(total))
+	stats.Strength = int(20 * float64(stats.Strength+1) / float64(total))
+
+	// Normalize personliaty
+	total = stats.Priority.Attacker + stats.Priority.Reproduction + stats.Priority.Sleepy + stats.Priority.Speed + 4
+	stats.Priority.Attacker = int(20 * float64(stats.Priority.Attacker+1) / float64(total))
+	stats.Priority.Reproduction = int(20 * float64(stats.Priority.Reproduction+1) / float64(total))
+	stats.Priority.Sleepy = int(20 * float64(stats.Priority.Sleepy+1) / float64(total))
+	stats.Priority.Speed = int(20 * float64(stats.Priority.Speed+1) / float64(total))
+
 	e.Stats = stats
 	e.UUID = fmt.Sprintf("%d", rand.Int63())
 	e.Age = 0
