@@ -23,13 +23,37 @@ type Action struct {
 }
 
 // GetAction takes a list of targets and returns an action this entity wants to do.
-func (e *Entity) GetAction([]*Entity) Action {
-	return Action{
-		Description: "sleep",
-		Perform: func() (updates []*Entity) {
-			return append(updates, e)
-		},
+func (e *Entity) GetAction(neighbors []*Entity) Action {
+	t := e.chooseActionType(neighbors)
+	switch t {
+	case "attack":
+		return Action{
+			Description: "attack",
+			Perform: func() (updates []*Entity) {
+				return e.attackAction(neighbors)
+			}}
+	case "sleep":
+		return Action{
+			Description: "sleep",
+			Perform: func() (updates []*Entity) {
+				return e.sleepAction()
+			}}
+	case "move":
+		return Action{
+			Description: "move",
+			Perform: func() (updates []*Entity) {
+				return e.moveAction()
+			}}
+	case "reproduce":
+		return Action{
+			Description: "reproduce",
+			Perform: func() (updates []*Entity) {
+				return e.reproduceAction()
+			}}
+	default:
+		panic("unknown type")
 	}
+
 }
 
 // Coordinate keeps track of position
