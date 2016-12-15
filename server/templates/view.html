@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <style>
+        .square {
+          width: 5px;
+          height: 5px;
+          margin: 1px;
+          /* use individual style to change based on entity type */
+          background-color: red;
+          display: inline-block;
+        }
+    </style>
+    <script>
+      function viewGame(g) {
+        $("#view").html("");
+        var s = "";
+        for (var x=0;x<10;x++) {
+          s += "<div>"
+          for (var y=0;y<10;y++) {
+            // get x,y from game
+            // change span appearently
+            s +='<span class="square"></span>';
+          }
+          s += "</div>";
+        }
+        $("#view").html(s);
+      }
+      window.onload = function(){
+        viewGame();
+      };
+    </script>
+  </head>
+  <body>
+    <div id="view"></div>
+  </body>
+</html>
