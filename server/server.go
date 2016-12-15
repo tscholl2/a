@@ -50,12 +50,13 @@ func main() {
 }
 
 func startGame() {
-	state.board.MakeWorld(10)
 	state.Lock()
+	state.board.MakeWorld(10)
+	state.Unlock()
 	for {
-		state.Unlock()
-		state.board.Step()
 		state.Lock()
+		state.board.Step()
+		state.Unlock()
 		time.Sleep(10)
 	}
 }
