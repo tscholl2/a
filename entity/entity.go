@@ -36,9 +36,10 @@ type Attributes struct {
 	Scavenger   bool        // when attacking, chooses lower HP as target
 }
 
-// ActionStats are the priorities for the action
-// these priorities are normalized when determing which action to undertake
-// to determine the priority with probabilities
+// ActionStats are the priorities for the action.
+// They are just arbitrary numbers.
+// These priorities are normalized when determing which action to undertake
+// to determine the priority with probabilities.
 type ActionStats struct {
 	Attacker int // increases probability for attack action
 	// the decision on which Entity to attack is chosen by other attributes
