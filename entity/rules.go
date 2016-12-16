@@ -67,14 +67,17 @@ func (e *Entity) Initialize(stats Attributes) {
 	e.Generation = 0
 	e.Position.X = rand.Int()
 	e.Position.Y = rand.Int()
-	e.MaxHP = rand.Intn(e.Stats.Fortitude) + rand.Intn(e.Stats.Fortitude)
+	e.MaxHP = 10 + rand.Intn(e.Stats.Fortitude) + rand.Intn(e.Stats.Fortitude)
 	e.HP = e.MaxHP
-	e.MaxSP = rand.Intn(e.Stats.Endurance) + rand.Intn(e.Stats.Endurance)
+	e.MaxSP = 100 + rand.Intn(e.Stats.Endurance) + rand.Intn(e.Stats.Endurance)
 	e.SP = e.MaxSP
+	e.BeaconPosition.X = -1
+	e.BeaconPosition.Y = -1
+	log.Printf("Created %s-%s with %d HP, stats:%v", e.Stats.SpeciesName, e.UUID, e.HP, stats)
 }
 
 func (e Entity) canReproduce() bool {
-	return 0.75*float64(e.SP) > float64(e.MaxSP) && 0.75*float64(e.HP) > float64(e.MaxHP)
+	return float64(e.SP) > 0.75*float64(e.MaxSP) && float64(e.HP) > 0.75*float64(e.MaxHP)
 }
 
 func (e Entity) canAttack() bool {
@@ -186,14 +189,17 @@ func (e *Entity) attackAction(targets []*Entity) []*Entity {
 
 	// Attack target
 	target := targets[targetID]
-	hpAttack := rand.Intn(e.Stats.Strength)
+	hpAttack := rand.Intn(10) + rand.Intn(e.Stats.Strength)
 	if e.hasAttackAdvantageAgainst(target) {
-		hpAttack += rand.Intn(e.Stats.Strength)
+		log.Println("Has advantage!")
+		hpAttack += rand.Intn(10) + rand.Intn(e.Stats.Strength)
 	}
-	hpDefense := rand.Intn(target.Stats.Defense)
+	hpDefense := rand.Intn(10) + rand.Intn(target.Stats.Defense)
 	if e.hasAttackDisadvantageAgainst(target) {
-		hpDefense += rand.Intn(target.Stats.Defense)
+		log.Println("Has disadvantage!")
+		hpDefense += rand.Intn(10) + rand.Intn(target.Stats.Defense)
 	}
+	log.Println(hpAttack, hpDefense)
 	hpTotal := hpAttack - hpDefense
 	if hpTotal > target.HP {
 		hpTotal = target.HP
@@ -257,6 +263,8 @@ func (e *Entity) moveAction() []*Entity {
 
 	} else {
 		// Move randomly
+		log.Println("Moving randomly")
+		fmt.Println(rand.Intn(3) - 1)
 		e.Position.X = e.Position.X + rand.Intn(3) - 1
 		e.Position.Y = e.Position.Y + rand.Intn(3) - 1
 	}

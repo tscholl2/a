@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
 	"sort"
@@ -21,13 +22,20 @@ func (g *Game) MakeWorld(worldSize int) {
 	g.Size = worldSize
 	g.Turn = 0
 	g.Entities = make(map[string]*entity.Entity)
-	for i := 0; i < 10; i++ {
-		newPlant := randomPlant()
-		g.Entities[newPlant.UUID] = newPlant
+	for i := 0; i < 200; i++ {
+		// Generate plants
+		newEntity := generateRandomEntity(true)
+		g.Entities[newEntity.UUID] = newEntity
 	}
+	for i := 0; i < 200; i++ {
+		// Generate creature
+		newEntity := generateRandomEntity(false)
+		g.Entities[newEntity.UUID] = newEntity
+	}
+
 }
 
-func randomPlant() *entity.Entity {
+func generateRandomEntity(isPlant bool) *entity.Entity {
 	var stats entity.Attributes
 	stats.Type = utils.Types[rand.Intn(5)]
 	stats.Defense = rand.Intn(20)
@@ -35,14 +43,18 @@ func randomPlant() *entity.Entity {
 	stats.Endurance = rand.Intn(20)
 	stats.Fortitude = rand.Intn(20)
 	stats.Initiative = rand.Intn(20)
-	stats.SpeciesName = fmt.Sprintf("%s plant %d", stats.Type, rand.Intn(10000))
+	if isPlant {
+		stats.SpeciesName = fmt.Sprintf("%s plant %d", stats.Type, rand.Intn(10000))
+	} else {
+		stats.SpeciesName = fmt.Sprintf("%s creature %d", stats.Type, rand.Intn(10000))
+	}
 	stats.Priority.Attacker = rand.Intn(20)
 	stats.Priority.Reproduction = rand.Intn(20)
 	stats.Priority.Sleepy = rand.Intn(20)
 	stats.Priority.Sleepy = rand.Intn(20)
 	e := new(entity.Entity)
 	e.Initialize(stats)
-	e.IsPlant = true
+	e.IsPlant = isPlant
 	return e
 }
 
@@ -111,7 +123,8 @@ func (g *Game) mergeUpdates(updates []*entity.Entity) {
 			e.UUID = fmt.Sprintf("%d", rand.Int63())
 			g.Entities[e.UUID] = e
 		}
-		if e.HP == 0 {
+		if e.HP <= 0 {
+			log.Printf("%s-%s died", e.Stats.SpeciesName, e.UUID)
 			delete(g.Entities, e.UUID)
 		}
 	}
