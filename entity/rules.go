@@ -234,6 +234,7 @@ func (e *Entity) reproduceAction() []*Entity {
 	newStats.Priority.Reproduction = e.History[1]
 	newStats.Priority.Sleepy = e.History[2]
 	newStats.Priority.Speed = e.History[3]
+
 	// create new entity
 	newEntity := new(Entity)
 	newEntity.Initialize(newStats)
