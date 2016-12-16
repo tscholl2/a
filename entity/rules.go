@@ -101,10 +101,14 @@ func (e *Entity) chooseActionType(neighbors []*Entity) string {
 
 	// Determine if possible to attack
 	if e.canAttack() {
-		for _, neighbor := range neighbors {
-			if (neighbor.IsPlant && e.Stats.Vegetarian) || !e.Stats.Vegetarian {
-				attackPossibility = e.Stats.Priority.Attacker
-				break
+		if e.MaxHP == e.HP && !e.Stats.Aggressive {
+			// pass
+		} else {
+			for _, neighbor := range neighbors {
+				if (neighbor.IsPlant && e.Stats.Vegetarian) || !e.Stats.Vegetarian {
+					attackPossibility = e.Stats.Priority.Attacker
+					break
+				}
 			}
 		}
 	}
@@ -209,7 +213,13 @@ func (e *Entity) attackAction(targets []*Entity) []*Entity {
 	}
 	e.SP = e.SP - 10
 	e.HP = e.HP + hpTotal
+	if e.HP > e.MaxHP {
+		e.HP = e.MaxHP
+	}
 	target.HP = target.HP - hpTotal
+	if target.HP < 0 {
+		target.HP = 0
+	}
 	log.Printf("%s-%s attacked %s-%s for %d damage", e.Stats.SpeciesName, e.UUID, target.Stats.SpeciesName, target.UUID, hpTotal)
 
 	return []*Entity{e, target}
@@ -233,7 +243,7 @@ func (e *Entity) reproduceAction() []*Entity {
 	newEntity := new(Entity)
 	newEntity.Initialize(newStats)
 	newEntity.Generation = e.Generation + 1
-	log.Printf("%s-%s created offspring: %s-%s", e.Stats.SpeciesName, e.UUID, newEntity.Stats.SpeciesName, newEntity.UUID)
+	log.Printf("%s-%s created offspring: %s-%s with stats:\n%+v\n", e.Stats.SpeciesName, e.UUID, newEntity.Stats.SpeciesName, newEntity.UUID, newEntity)
 
 	e.HP = e.HP / 2
 	e.SP = e.SP / 2

@@ -27,7 +27,7 @@ func (g *Game) MakeWorld(worldSize int) {
 		newEntity := generateRandomEntity(true)
 		g.Entities[newEntity.UUID] = newEntity
 	}
-	for i := 0; i < 200; i++ {
+	for i := 0; i < 1; i++ {
 		// Generate creature
 		newEntity := generateRandomEntity(false)
 		g.Entities[newEntity.UUID] = newEntity

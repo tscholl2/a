@@ -30,7 +30,7 @@ func (e *Entity) GetAction(neighbors []*Entity) Action {
 	e.History = append(e.History, t)
 	e.Age++
 	if t != donothing {
-		log.Printf("%s-%s is performing %s", e.Stats.SpeciesName, e.UUID, t)
+		log.Printf("%s-%s (%d/%d, %d/%d) is performing %s", e.Stats.SpeciesName, e.UUID, e.HP, e.MaxHP, e.SP, e.MaxSP, t)
 	}
 	switch t {
 	case "attack":
