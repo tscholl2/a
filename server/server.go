@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"sync"
@@ -56,7 +58,9 @@ func startGame() {
 	for {
 		state.Lock()
 		state.board.Step()
+		bJSON, _ := json.MarshalIndent(state.board, "", " ")
+		ioutil.WriteFile("board.json", bJSON, 0644)
 		state.Unlock()
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(1 * time.Millisecond)
 	}
 }

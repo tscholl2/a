@@ -230,18 +230,10 @@ func (e *Entity) attackAction(targets []*Entity) []*Entity {
 
 func (e *Entity) reproduceAction() []*Entity {
 	newStats := e.Stats
-	for _, action := range e.History {
-		switch action {
-		case attack:
-			newStats.Priority.Attacker++
-		case reproduce:
-			newStats.Priority.Reproduction++
-		case sleep:
-			newStats.Priority.Sleepy++
-		case move:
-			newStats.Priority.Speed++
-		}
-	}
+	newStats.Priority.Attacker = e.History[0]
+	newStats.Priority.Reproduction = e.History[1]
+	newStats.Priority.Sleepy = e.History[2]
+	newStats.Priority.Speed = e.History[3]
 	// create new entity
 	newEntity := new(Entity)
 	newEntity.Initialize(newStats)
