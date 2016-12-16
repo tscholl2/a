@@ -61,6 +61,6 @@ func startGame() {
 		bJSON, _ := json.MarshalIndent(state.board, "", " ")
 		ioutil.WriteFile("board.json", bJSON, 0644)
 		state.Unlock()
-		time.Sleep(1 * time.Millisecond)
+		time.Sleep(1 * time.Second)
 	}
 }

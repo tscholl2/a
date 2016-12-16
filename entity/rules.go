@@ -65,8 +65,8 @@ func (e *Entity) Initialize(stats Attributes) {
 	e.UUID = fmt.Sprintf("%d", rand.Int63())
 	e.Age = 0
 	e.Generation = 0
-	e.Position.X = rand.Int()
-	e.Position.Y = rand.Int()
+	e.Position.X = rand.Intn(10)
+	e.Position.Y = rand.Intn(10)
 	e.MaxHP = 10 + rand.Intn(e.Stats.Fortitude) + rand.Intn(e.Stats.Fortitude)
 	e.HP = e.MaxHP
 	e.MaxSP = 100 + rand.Intn(e.Stats.Endurance) + rand.Intn(e.Stats.Endurance)
@@ -273,6 +273,26 @@ func (e *Entity) moveAction() []*Entity {
 		e.Position.X = e.Position.X + rand.Intn(3) - 1
 		e.Position.Y = e.Position.Y + rand.Intn(3) - 1
 	}
+
+	for {
+		if e.Position.X > 10 {
+			e.Position.X = e.Position.X - 10
+		} else if e.Position.X < 0 {
+			e.Position.X = e.Position.X + 10
+		} else {
+			break
+		}
+	}
+	for {
+		if e.Position.Y > 10 {
+			e.Position.Y = e.Position.Y - 10
+		} else if e.Position.Y < 0 {
+			e.Position.Y = e.Position.Y + 10
+		} else {
+			break
+		}
+	}
+
 	log.Printf("%s-%s moved to %d,%d", e.Stats.SpeciesName, e.UUID, e.Position.X, e.Position.Y)
 	return []*Entity{e}
 }
