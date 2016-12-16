@@ -41,8 +41,8 @@ func (e *Entity) GetAction(neighbors []*Entity) Action {
 	}
 
 	e.Age++
-	if math.Mod(float64(e.Age), 20) == 0 {
-		e.HP--
+	if math.Mod(float64(e.Age), 15) == 0 {
+		e.HP = e.HP - reduceRoll(e.Stats.Fortitude)
 	}
 	if t != donothing {
 		log.Printf("%s-%s (%d/%d, %d/%d) is performing %s", e.Stats.SpeciesName, e.UUID, e.HP, e.MaxHP, e.SP, e.MaxSP, t)

@@ -34,7 +34,7 @@ func (g *Game) updateStats() {
 	}
 	g.Stats.NumberOfAnimalSpecies = len(animalSpecies)
 	g.Stats.NumberOfPlantSpecies = len(plantSpecies)
-	log.Printf("Stats: %+v\n", g.Stats)
+	log.Printf("GameStats: %+v\n", g.Stats)
 }
 
 func (g *Game) MakeWorld(worldSize int) {
