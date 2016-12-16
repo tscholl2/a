@@ -33,6 +33,11 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{})
 	})
+	r.GET("/game", func(c *gin.Context) {
+		state.Lock()
+		c.JSON(http.StatusOK, state.board)
+		state.Unlock()
+	})
 	r.POST("/new", func(c *gin.Context) {
 		var json entity.Attributes
 		err := c.BindJSON(&json)

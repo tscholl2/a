@@ -1,37 +1,91 @@
 <html>
-  <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <style>
-        .square {
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.rawgit.com/tiaanduplessis/wenk/master/dist/wenk.css">
+  <style>
+        .game-view {
+          position: absolute;
+          top: 0;
+          left: 0;
+          display: flex;
+          height: 100vh;
+          flex-flow: column;
+          justify-content: center;
+        }
+        .game-row {
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: center;
+          align-items: center;
+          width: 100vw;
+          flex: 1;
+          text-align: center;
+        }
+        .game-column {
+          padding: 10px;
+          flex: 1;
+        }
+        .game-square {
           width: 5px;
           height: 5px;
-          margin: 1px;
           /* use individual style to change based on entity type */
           background-color: red;
           display: inline-block;
         }
     </style>
-    <script>
-      function viewGame(g) {
-        $("#view").html("");
-        var s = "";
-        for (var x=0;x<10;x++) {
-          s += "<div>"
-          for (var y=0;y<10;y++) {
-            // get x,y from game
-            // change span appearently
-            s +='<span class="square"></span>';
-          }
-          s += "</div>";
+<script>
+  function get(key) {
+    c = new WebSocket('wss://cowyo.com/ws');
+    return new Promise(function (resolve, reject) {
+      try {
+        c.onmessage = function (evt) {
+          return resolve(JSON.parse(JSON.parse(evt.data).TextData));
         }
-        $("#view").html(s);
+        c.onopen = function (_) {
+          c.send(JSON.stringify({
+            Title: `${key}`,
+            UpdateClient: true,
+          }));
+        };
+      } catch (e) {
+        return reject(e);
       }
-      window.onload = function(){
-        viewGame();
-      };
-    </script>
-  </head>
-  <body>
-    <div id="view"></div>
-  </body>
+    });
+  }
+  function viewGame(g) {
+    console.log(g)
+    $("#view").html("");
+    var s = "";
+    for (var x = 0; x < 10; x++) {
+      s += "<div class='game-row'>"
+      for (var y = 0; y < 10; y++) {
+        s += '<div class="game-column">';
+        // get x,y from game
+        // get all things at position x,y
+        for (var key in g.Entities) {
+          var e = g.Entities[key];
+          if (e.Position.X % 10 === x && e.Position.Y % 10 === y) {
+            // change span appearently
+            s += '<span data-wenk="' + e.Stats["species_name"] + '" class="game-square">&#127876;</span>';
+          }
+        }
+        s += '</div>';
+      }
+      s += "</div>";
+    }
+    $("#view").html(s);
+  }
+  window.onload = function () {
+    get("examplegame.json").then(g => {
+      viewGame(g);
+    });
+  };
+</script>
+</head>
+
+<body>
+  <div id="view" class='game-view'></div>
+</body>
+
 </html>
