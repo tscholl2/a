@@ -18,6 +18,25 @@ type Game struct {
 	Stats    GameStats
 }
 
+func (g *Game) updateStats() {
+	g.Stats.NumberOfAnimals = 0
+	g.Stats.NumberOfPlants = 0
+	animalSpecies := make(map[string]bool)
+	plantSpecies := make(map[string]bool)
+	for uuid := range g.Entities {
+		if g.Entities[uuid].IsPlant {
+			plantSpecies[g.Entities[uuid].Stats.SpeciesName] = true
+			g.Stats.NumberOfPlants++
+		} else {
+			animalSpecies[g.Entities[uuid].Stats.SpeciesName] = true
+			g.Stats.NumberOfAnimals++
+		}
+	}
+	g.Stats.NumberOfAnimalSpecies = len(animalSpecies)
+	g.Stats.NumberOfPlantSpecies = len(plantSpecies)
+	log.Printf("Stats: %+v\n", g.Stats)
+}
+
 func (g *Game) MakeWorld(worldSize int) {
 	g.Size = worldSize
 	g.Turn = 0
@@ -27,7 +46,7 @@ func (g *Game) MakeWorld(worldSize int) {
 		newEntity := generateRandomEntity(true)
 		g.Entities[newEntity.UUID] = newEntity
 	}
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 2; i++ {
 		// Generate creature
 		newEntity := generateRandomEntity(false)
 		g.Entities[newEntity.UUID] = newEntity
@@ -71,6 +90,12 @@ func (g *Game) Step() {
 		updates := action.Perform()
 		g.mergeUpdates(updates)
 	}
+	// Add plants
+	if math.Mod(float64(g.Turn), 5) == 0 && g.Stats.NumberOfPlants < 200 {
+		newEntity := generateRandomEntity(true)
+		g.Entities[newEntity.UUID] = newEntity
+	}
+	g.updateStats()
 }
 
 func (g *Game) getOrder() []*entity.Entity {

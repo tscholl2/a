@@ -1,6 +1,9 @@
 package entity
 
-import "log"
+import (
+	"log"
+	"math"
+)
 
 // Entity is a players of the game
 type Entity struct {
@@ -15,7 +18,7 @@ type Entity struct {
 	HP             int        // current Hit Points
 	MaxSP          int        // maximum Stamina Points
 	SP             int        // current Stamina Points
-	History        []string   // History of actions
+	History        [4]int     // History of actions
 }
 
 // Action is something to be preformed by the game
@@ -27,8 +30,20 @@ type Action struct {
 // GetAction takes a list of targets and returns an action this entity wants to do.
 func (e *Entity) GetAction(neighbors []*Entity) Action {
 	t := e.chooseActionType(neighbors)
-	e.History = append(e.History, t)
+	if t == attack {
+		e.History[0]++
+	} else if t == reproduce {
+		e.History[1]++
+	} else if t == sleep {
+		e.History[2]++
+	} else if t == move {
+		e.History[3]++
+	}
+
 	e.Age++
+	if math.Mod(float64(e.Age), 20) == 0 {
+		e.HP--
+	}
 	if t != donothing {
 		log.Printf("%s-%s (%d/%d, %d/%d) is performing %s", e.Stats.SpeciesName, e.UUID, e.HP, e.MaxHP, e.SP, e.MaxSP, t)
 	}
