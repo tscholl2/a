@@ -119,8 +119,7 @@ func (g *Game) findAllInSquare(self *entity.Entity, x, y int) (things []*entity.
 
 func (g *Game) mergeUpdates(updates []*entity.Entity) {
 	for _, e := range updates {
-		if e.UUID == "" {
-			e.UUID = fmt.Sprintf("%d", rand.Int63())
+		if _, ok := g.Entities[e.UUID]; !ok {
 			g.Entities[e.UUID] = e
 		}
 		if e.HP <= 0 {

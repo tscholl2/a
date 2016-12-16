@@ -105,6 +105,9 @@ func (e *Entity) chooseActionType(neighbors []*Entity) string {
 			// pass
 		} else {
 			for _, neighbor := range neighbors {
+				if e.Stats.SpeciesName == neighbor.Stats.SpeciesName {
+					continue
+				}
 				if (neighbor.IsPlant && e.Stats.Vegetarian) || !e.Stats.Vegetarian {
 					attackPossibility = e.Stats.Priority.Attacker
 					break
@@ -274,7 +277,6 @@ func (e *Entity) moveAction() []*Entity {
 	} else {
 		// Move randomly
 		log.Println("Moving randomly")
-		fmt.Println(rand.Intn(3) - 1)
 		e.Position.X = e.Position.X + rand.Intn(3) - 1
 		e.Position.Y = e.Position.Y + rand.Intn(3) - 1
 	}
