@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="documentation for framework for internal navigation and discovery Lucius Fox additions">
+    <meta name="keywords" content="lucius fox, FIND, internal navigation, internal positioning, local positioning">
+    <meta name="author" content="Zack">
+    <title>
+        find-lf server
+    </title>
+    <script src="/static/jquery.min.js"></script>
+    <script src="/static/toastr.min.js"></script>
+    <script src="/static/bootstrap.min.js"></script>
+    <link href="/static/toastr.min.css" rel="stylesheet" type="text/css" />
+    <link href="/static/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="container">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            <h2>Make a new creature  <small><a href="https://github.com/schollz/find-lf">Instructions</a></small></h2>
+            <div class="form-group row">
+                <div class="col-xs-6">
+                    <label for="species_name" class="control-label">Species Name:</label>
+                    <input type="text" class="form-control" id="species_name" placeholder="" required="" autofocus="">
+                </div>
+                <div class="col-xs-6">
+                    <label for="species_type" class="control-label">Type:</label>
+                    <select class="form-control" id="species_type">
+                        <option>wood</option>
+                        <option>fire</option>
+                        <option>earth</option>
+                        <option>metal</option>
+                        <option>water</option>
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <p>Choose the stats (these will be normalized)</p>
+            <div class="form-group row">
+                <label for="initiative" class="col-xs-2 col-form-label">Initiative:</label>
+                <div class="col-xs-10">
+                    <input class="form-control" type="number" value="0" id="initiative">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="strength" class="col-xs-2 col-form-label">Strength:</label>
+                <div class="col-xs-10">
+                    <input class="form-control" type="number" value="0" id="strength">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="defense" class="col-xs-2 col-form-label">Defense:</label>
+                <div class="col-xs-10">
+                    <input class="form-control" type="number" value="0" id="defense">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="endurance" class="col-xs-2 col-form-label">Endurance:</label>
+                <div class="col-xs-10">
+                    <input class="form-control" type="number" value="0" id="endurance">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="fortitude" class="col-xs-2 col-form-label">Fortitude:</label>
+                <div class="col-xs-10">
+                    <input class="form-control" type="number" value="0" id="fortitude">
+                </div>
+            </div>
+            <hr>
+            <p>Choose the personality (these will be normalized)</p>
+            <div class="form-group row">
+                <label for="attacker" class="col-xs-2 col-form-label">Attacker:</label>
+                <div class="col-xs-10">
+                    <input class="form-control" type="number" value="0" id="attacker">
+                </div>
+                <label for="radio-group" class="col-xs-2 col-form-label">Attacking type:</label>
+                <div id="radio-group" class="form-group row">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="foofoo" value="true"> None
+                    </label>
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="vegetarian" value="true"> Vegetarian
+                    </label>
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="aggressive" value="true"> Aggressive
+                    </label>
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="scavenger" value="true"> Scavenger
+                    </label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="speed" class="col-xs-2 col-form-label">Speed:</label>
+                <div class="col-xs-10">
+                    <input class="form-control" type="number" value="0" id="speed">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="reproduction" class="col-xs-2 col-form-label">Reproduction:</label>
+                <div class="col-xs-10">
+                    <input class="form-control" type="number" value="0" id="reproduction">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="sleepy" class="col-xs-2 col-form-label">Sleepy:</label>
+                <div class="col-xs-10">
+                    <input class="form-control" type="number" value="0" id="sleepy">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xs-12">
+                    <button type="button" id="add_creature" class="btn btn-success btn-block">Add</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+    <script>
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": false,
+        "positionClass": "toast-bottom-full-width",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "200",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+
+    $(document).on('click', "button", function() {
+        dat = $(this).attr("id");
+        payload = {};
+        payload['species_name'] = document.getElementById('species_name').value.toLowerCase();
+        payload['type'] = document.getElementById('species_type').value.toLowerCase();
+        payload['initiative'] = parseInt(document.getElementById('initiative').value.toLowerCase());
+        payload['strength'] = parseInt(document.getElementById('strength').value.toLowerCase());
+        payload['defense'] = parseInt(document.getElementById('defense').value.toLowerCase());
+        payload['endurance'] = parseInt(document.getElementById('endurance').value.toLowerCase());
+        payload['vegetarian'] = document.getElementById('vegetarian').checked
+        payload['aggressive'] = document.getElementById('aggressive').checked
+        payload['scavenger'] = document.getElementById('scavenger').checked
+        payload['priority'] = {};
+        payload['priority']['attacker'] = parseInt(document.getElementById('attacker').value.toLowerCase());
+        payload['priority']['speed'] = parseInt(document.getElementById('speed').value.toLowerCase());
+        payload['priority']['reproduction'] = parseInt(document.getElementById('reproduction').value.toLowerCase());
+        payload['priority']['sleepy'] = parseInt(document.getElementById('sleepy').value.toLowerCase());
+        console.log(payload);
+
+        if (payload['species_name'] == "") {
+          toastr.error("Need to provide species name!");
+          return;
+        }
+
+        $.ajax({
+            url: "/new",
+            data: JSON.stringify(payload),
+            type: "POST",
+            success: function(response) {
+                toastr.success(response);
+            },
+            error: function(xhr, status, error) {
+                toastr.error(xhr.responseText);
+            }
+        });
+    });
+    </script>
+</body>
+
+</html>
