@@ -36,11 +36,11 @@ func (e *Entity) Initialize(stats Attributes) {
 		stats.Defense = 0
 	}
 	total := stats.Defense + stats.Endurance + stats.Fortitude + stats.Initiative + stats.Strength + 5
-	stats.Defense = 1 + int(20*float64(stats.Defense+1)/float64(total))
-	stats.Endurance = 1 + int(20*float64(stats.Endurance+1)/float64(total))
-	stats.Fortitude = 1 + int(20*float64(stats.Fortitude+1)/float64(total))
-	stats.Initiative = 1 + int(20*float64(stats.Initiative+1)/float64(total))
-	stats.Strength = 1 + int(20*float64(stats.Strength+1)/float64(total))
+	stats.Defense = 1 + int(10*float64(stats.Defense+1)/float64(total))
+	stats.Endurance = 1 + int(10*float64(stats.Endurance+1)/float64(total))
+	stats.Fortitude = 1 + int(10*float64(stats.Fortitude+1)/float64(total))
+	stats.Initiative = 1 + int(10*float64(stats.Initiative+1)/float64(total))
+	stats.Strength = 1 + int(10*float64(stats.Strength+1)/float64(total))
 
 	// Normalize priorities
 	if stats.Priority.Attacker < 0 {
@@ -56,10 +56,10 @@ func (e *Entity) Initialize(stats Attributes) {
 		stats.Priority.Speed = 0
 	}
 	total = stats.Priority.Attacker + stats.Priority.Reproduction + stats.Priority.Sleepy + stats.Priority.Speed + 4
-	stats.Priority.Attacker = 1 + int(20*float64(stats.Priority.Attacker+1)/float64(total))
-	stats.Priority.Reproduction = 1 + int(20*float64(stats.Priority.Reproduction+1)/float64(total))
-	stats.Priority.Sleepy = 1 + int(20*float64(stats.Priority.Sleepy+1)/float64(total))
-	stats.Priority.Speed = 1 + int(20*float64(stats.Priority.Speed+1)/float64(total))
+	stats.Priority.Attacker = 1 + int(25*float64(stats.Priority.Attacker+1)/float64(total))
+	stats.Priority.Reproduction = 1 + int(25*float64(stats.Priority.Reproduction+1)/float64(total))
+	stats.Priority.Sleepy = 1 + int(25*float64(stats.Priority.Sleepy+1)/float64(total))
+	stats.Priority.Speed = 1 + int(25*float64(stats.Priority.Speed+1)/float64(total))
 
 	e.Stats = stats
 	e.UUID = fmt.Sprintf("%d", rand.Int63())
@@ -67,13 +67,13 @@ func (e *Entity) Initialize(stats Attributes) {
 	e.Generation = 0
 	e.Position.X = rand.Intn(10)
 	e.Position.Y = rand.Intn(10)
-	e.MaxHP = 10 + rand.Intn(e.Stats.Fortitude) + rand.Intn(e.Stats.Fortitude)
+	e.MaxHP = 10 + fightRoll(e.Stats.Fortitude)
 	e.HP = e.MaxHP
-	e.MaxSP = 100 + rand.Intn(e.Stats.Endurance) + rand.Intn(e.Stats.Endurance)
+	e.MaxSP = 10 + fightRoll(e.Stats.Endurance)
 	e.SP = e.MaxSP
 	e.BeaconPosition.X = -1
 	e.BeaconPosition.Y = -1
-	log.Printf("Created %s-%s with %d HP, stats:%v", e.Stats.SpeciesName, e.UUID, e.HP, stats)
+	log.Printf("Created %s-%s: %+v", e.Stats.SpeciesName, e.UUID, e)
 }
 
 func (e Entity) canReproduce() bool {
@@ -196,17 +196,23 @@ func (e *Entity) attackAction(targets []*Entity) []*Entity {
 
 	// Attack target
 	target := targets[targetID]
-	hpAttack := rand.Intn(10) + rand.Intn(e.Stats.Strength)
+	hpAttack := 0
 	if e.hasAttackAdvantageAgainst(target) {
 		log.Println("Has advantage!")
-		hpAttack += rand.Intn(10) + rand.Intn(e.Stats.Strength)
+		hpAttack = fightRoll(e.Stats.Strength + 1)
+	} else {
+		hpAttack = fightRoll(e.Stats.Strength)
 	}
-	hpDefense := rand.Intn(10) + rand.Intn(target.Stats.Defense)
+
+	hpDefense := 0
 	if e.hasAttackDisadvantageAgainst(target) {
 		log.Println("Has disadvantage!")
-		hpDefense += rand.Intn(10) + rand.Intn(target.Stats.Defense)
+		hpDefense = fightRoll(target.Stats.Defense + 1)
+	} else {
+		hpDefense = fightRoll(target.Stats.Defense)
 	}
-	log.Println(hpAttack, hpDefense)
+
+	log.Printf("Attack (%d): %d, Defense (%d): %d\n", e.Stats.Strength, hpAttack, target.Stats.Defense, hpDefense)
 	hpTotal := hpAttack - hpDefense
 	if hpTotal > target.HP {
 		hpTotal = target.HP
@@ -214,7 +220,8 @@ func (e *Entity) attackAction(targets []*Entity) []*Entity {
 	if hpTotal < 0 {
 		hpTotal = 0
 	}
-	e.SP = e.SP - 10
+	staminaLoss := reduceRoll(e.Stats.Endurance)
+	e.SP = e.SP - staminaLoss
 	e.HP = e.HP + hpTotal
 	if e.HP > e.MaxHP {
 		e.HP = e.MaxHP
@@ -223,7 +230,7 @@ func (e *Entity) attackAction(targets []*Entity) []*Entity {
 	if target.HP < 0 {
 		target.HP = 0
 	}
-	log.Printf("%s-%s attacked %s-%s for %d damage", e.Stats.SpeciesName, e.UUID, target.Stats.SpeciesName, target.UUID, hpTotal)
+	log.Printf("%s-%s attacked %s-%s for %d damage, lost %d stamina", e.Stats.SpeciesName, e.UUID, target.Stats.SpeciesName, target.UUID, hpTotal, staminaLoss)
 
 	return []*Entity{e, target}
 }
@@ -295,4 +302,36 @@ func (e *Entity) moveAction() []*Entity {
 
 	log.Printf("%s-%s moved to %d,%d", e.Stats.SpeciesName, e.UUID, e.Position.X, e.Position.Y)
 	return []*Entity{e}
+}
+
+func (e *Entity) GetInitiative() int {
+	return fightRoll(e.Stats.Initiative)
+}
+
+// fightRoll is used to determine attack and defense
+func fightRoll(numDice int) int {
+	maxRoll := 0
+	numTens := 0
+	for i := 0; i < numDice; i++ {
+		roll := rand.Intn(10) + 1
+		if roll == 10 {
+			numTens++
+			maxRoll = 0
+		} else if roll > maxRoll {
+			maxRoll = roll
+		}
+	}
+	return maxRoll + 10*numTens
+}
+
+// reduce roll is determined how much to take away from something
+func reduceRoll(numDice int) int {
+	minRoll := 10
+	for i := 0; i < numDice; i++ {
+		roll := rand.Intn(10) + 1
+		if roll < minRoll {
+			minRoll = roll
+		}
+	}
+	return minRoll
 }

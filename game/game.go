@@ -102,7 +102,7 @@ func (g *Game) getOrder() []*entity.Entity {
 	entities := make([]*entity.Entity, len(g.Entities))
 	entityInitative := make(map[string]int)
 	for entityUUID := range g.Entities {
-		entityInitative[entityUUID] = g.Entities[entityUUID].Stats.Initiative
+		entityInitative[entityUUID] = g.Entities[entityUUID].GetInitiative()
 	}
 	pairs := rankByInitiative(entityInitative)
 	for i := range pairs {
